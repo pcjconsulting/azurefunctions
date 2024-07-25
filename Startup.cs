@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using azurefunctions.Data;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,20 @@ namespace azurefunctions
 {
     public class Startup : FunctionsStartup
     {
+        /// <summary>
+        /// Configure builds the object graph.
+        /// </summary>
+        /// <param name="builder">The host builder.</param>
         public override void Configure(IFunctionsHostBuilder builder) 
+        {
+        }
+
+
+        /// <summary>
+        /// ConfigureEF wires up the Entity Frameworks DbContext.
+        /// </summary>
+        /// <param name="builder">The host builder.</param>
+        private void ConfigureEF(IFunctionsHostBuilder builder) 
         {
             // from local.settings.json
             var keyValutUrl = new Uri(Environment.GetEnvironmentVariable("KeyValutUrl"));
