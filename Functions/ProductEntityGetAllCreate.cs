@@ -15,11 +15,11 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace azurefunctions.Functions
 {
-    public static class TableGetAllCreate
+    public static class ProductEntityGetAllCreate
     {
         [FunctionName("TableGetAllCreate")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "product")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "productentity")] HttpRequest req,
             [Table("Product", Take = 5, Connection = "AzureWebJobsStorage")] TableClient tableClient)
         {
             try

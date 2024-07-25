@@ -5,18 +5,16 @@ using azurefunctions.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System;
-using Newtonsoft.Json;
 using System.IO;
 using Azure.Data.Tables;
-using Azure;
 
 namespace azurefunctions.Functions
 {
-    public class TableGetByIdUpdateDelete
+    public class ProductEntityGetByIdUpdateDelete
     {
         [FunctionName("TableGetByIdUpdateDelete")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "put", "delete", Route = "product/{id}")] HttpRequest req, int id,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "put", "delete", Route = "productentity/{id}")] HttpRequest req, int id,
             [Table("Product", Take=5, Connection = "AzureWebJobsStorage")] TableClient tableClient)
         {
             try
