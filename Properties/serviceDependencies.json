@@ -3,10 +3,19 @@
     "secrets1": {
       "type": "secrets"
     },
+    "storage2": {
+      "type": "storage",
+      "connectionId": "AzureWebJobsStorage:table",
+      "dynamicId": null
+    },
+    "compute.function.windows1": {
+      "group": "connections",
+      "type": "compute.function.windows",
+      "connectionId": null
+    },
     "storage1": {
       "type": "storage",
-      "connectionId": "AzureWebJobsStorage",
-      "dynamicId": null
+      "connectionId": "AzureWebJobsStorage"
     }
   }
 }

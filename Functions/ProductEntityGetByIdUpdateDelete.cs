@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using azurefunctions.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System;
-using System.IO;
 using Azure.Data.Tables;
 
 namespace azurefunctions.Functions
@@ -25,11 +25,13 @@ namespace azurefunctions.Functions
                 {
                     return new OkObjectResult($"Product id={id} not found.");
                 }
+
                 // Get
                 if (req.Method == HttpMethods.Get)
                 {
                     return new OkObjectResult(entity.Text);
                 }
+
                 // Update
                 else if (req.Method == HttpMethods.Put)
                 {
@@ -38,6 +40,7 @@ namespace azurefunctions.Functions
                     var response = await tableClient.UpdateEntityAsync<ProductEntity>(entity, entity.ETag);
                     return new OkObjectResult("Product entry updated successfully.");
                 }
+
                 // Delete
                 else
                 {
@@ -47,7 +50,7 @@ namespace azurefunctions.Functions
                 }
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new StatusCodeResult(500); // Internal Server Error
             }

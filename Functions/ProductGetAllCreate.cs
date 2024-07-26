@@ -11,23 +11,23 @@ using azurefunctions.Data;
 
 namespace azurefunctions.Functions
 {
-    public class ProductGetByIdUpdateDelete
+    public class ProductGetAllCreate
     {
         private readonly AppDbContext _ctx;
 
         // Use paramless ctor till we get EF and SQL Server configured.
-        //public ProductGetByIdUpdateDelete(AppDbContext ctx)
+        //public ProductGetAllCreate(AppDbContext ctx)
         //{
         //    _ctx = ctx;
         //}
-        public ProductGetByIdUpdateDelete()
+        public ProductGetAllCreate()
         {
             _ctx = null;
         }
 
-        [FunctionName("ProductGetByIdUpdateDelete")]
+        [FunctionName("ProductGetAllCreate")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "put", "delete", Route = "product/{id}")] HttpRequest req, int id)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "product")] HttpRequest req)
         {
             try
             {
@@ -36,37 +36,19 @@ namespace azurefunctions.Functions
                     return new OkObjectResult("The 'product' endpoint is not available, try the 'productentity' endpoint instead."); // Internal Server Error
                 }
 
-                if (req.Method == HttpMethods.Get)
-                {
-                    var product = await _ctx.Products.FirstOrDefaultAsync(p => p.ID == id);
-                    if (product == null)
-                    {
-                        return new NotFoundResult();
-                    }
-                    return new OkObjectResult(product);
-                }
-
-                else if (req.Method == HttpMethods.Put)
+                // Create
+                if (req.Method == HttpMethods.Post)
                 {
                     string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                     var product = JsonConvert.DeserializeObject<Product>(requestBody);
-                    product.ID = id;
-                    _ctx.Products.Update(product);
+                    _ctx.Products.Add(product);
                     await _ctx.SaveChangesAsync();
-                    return new OkObjectResult(product);
+                    return new CreatedResult("/product", product);
                 }
 
-                else
-                {
-                    var product = await _ctx.Products.FirstOrDefaultAsync(p => p.ID == id);
-                    if (product == null)
-                    {
-                        return new NotFoundResult();
-                    }
-                    _ctx.Products.Remove(product);
-                    await _ctx.SaveChangesAsync();
-                    return new NoContentResult();
-                }
+                // GetAll
+                var products = await _ctx.Products.ToListAsync();
+                return new OkObjectResult(products);
             }
             catch (Exception)
             {

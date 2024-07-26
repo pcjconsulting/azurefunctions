@@ -35,6 +35,7 @@ namespace azurefunctions.Functions
                     var queryResults = await tableClient.AddEntityAsync<ProductEntity>(entity);
                     return new OkObjectResult(queryResults);
                 }
+
                 // GetAll
                 else
                 {
@@ -46,7 +47,7 @@ namespace azurefunctions.Functions
                     return new OkObjectResult(products);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new StatusCodeResult(500); // Internal Server Error
             }
