@@ -12,10 +12,10 @@ namespace azurefunctions.Functions
 {
     public class ProductEntityGetByIdUpdateDelete
     {
-        [FunctionName("TableGetByIdUpdateDelete")]
+        [FunctionName("ProductEntityGetByIdUpdateDelete")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "put", "delete", Route = "productentity/{id}")] HttpRequest req, int id,
-            [Table("Product", Take=5, Connection = "AzureWebJobsStorage")] TableClient tableClient)
+            [Table("Product", Take = 5, Connection = "AzureWebJobsStorage")] TableClient tableClient)
         {
             try
             {
@@ -37,25 +37,21 @@ namespace azurefunctions.Functions
                 {
                     string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                     entity.Text = requestBody;
-                    var response = await tableClient.UpdateEntityAsync<ProductEntity>(entity, entity.ETag);
-                    return new OkObjectResult("Product entry updated successfully.");
+                    await tableClient.UpdateEntityAsync<ProductEntity>(entity, entity.ETag);
+                    return new OkObjectResult($"Product id={id} updated successfully.");
                 }
 
                 // Delete
                 else
                 {
-                    var response = await tableClient.DeleteEntityAsync(Helpers.PartitionKey, entity.RowKey);
-
-                    return new OkObjectResult(response);
+                    await tableClient.DeleteEntityAsync(Helpers.PartitionKey, entity.RowKey);
+                    return new OkObjectResult($"Product id={id} deleted successfully.");
                 }
-
             }
             catch (Exception)
             {
                 return new StatusCodeResult(500); // Internal Server Error
             }
         }
-
     }
-
 }
