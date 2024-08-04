@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using IBM.WMQ;
 
 namespace azurefunctions.Functions
@@ -28,12 +29,12 @@ namespace azurefunctions.Functions
         /// Send the specified message on the specified queue.
         /// </summary>
         /// <param name="queue">The MQQueue.</param>
-        /// <param name="message">The message string.</param>
-        /// <returns>An ID in a byte array.</returns>
-        public static byte[] SendMessage(string queueName, string message)
+        /// <param name="message">The text message.</param>
+        /// <returns>The hex-encoded MessageId string.</returns>
+        public static string SendMessage(string queueName, string message)
         {
             // Connect to the queue manager and open the queue.
-            MQQueueManager qMgr = MQClient.Init();
+            MQQueueManager qMgr = MQClient.ConnectQueueManager();
             if (qMgr == null)
             {
                 return null;
@@ -56,7 +57,10 @@ namespace azurefunctions.Functions
             queue?.Close();
             qMgr?.Disconnect();
 
-            return sendMessage.MessageId;
+            // byte array to hex string
+            string hexIdString = BitConverter.ToString(sendMessage.MessageId);
+
+            return hexIdString;
         }
 
 
@@ -64,12 +68,12 @@ namespace azurefunctions.Functions
         /// Get a message on the specified queue with the specified ID.
         /// </summary>
         /// <param name="queue">The queue name.</param>
-        /// <param name="id">The message ID.</param>
-        /// <returns>An ID in a byte array.</returns>
-        public static string GetMessage(string queueName, byte[] id)
+        /// <param name="id">The hex-encoded MessageId string.</param>
+        /// <returns>The text message.</returns>
+        public static string GetMessage(string queueName, string id)
         {
             // Connect to the queue manager and open the queue.
-            MQQueueManager qMgr = MQClient.Init();
+            MQQueueManager qMgr = MQClient.ConnectQueueManager();
             if (qMgr == null)
             {
                 return null;
@@ -80,10 +84,14 @@ namespace azurefunctions.Functions
                 return null;
             }
 
+            // hex string to byte array
+            string[] idHexArray = id.Split('-');
+            byte[] idBytes = idHexArray.Select(b => Convert.ToByte(b, 16)).ToArray();
+
             // Create an IBM MQ message to receive the message.
             var retrievedMessage = new MQMessage
             {
-                MessageId = id
+                MessageId = idBytes
             };
 
             // Set default get message options.
@@ -106,7 +114,7 @@ namespace azurefunctions.Functions
         /// Initialise the connection properties and connect to a QM.
         /// </summary>
         /// <returns>A Queue Manager.</returns>
-        private static MQQueueManager Init()
+        private static MQQueueManager ConnectQueueManager()
         {
             var connectionProperties = new Hashtable();
             connectionProperties.Add(MQC.TRANSPORT_PROPERTY, connectionType);
